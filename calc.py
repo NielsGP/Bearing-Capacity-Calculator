@@ -190,6 +190,11 @@ class calc:
         R_Rd_A = R_Rd/A_ef
         
         return R_Rd, R_Rd_A
+    
+    def drained_bearing_cap_hor(parsed):
+        H_Rd = parsed["V_ef"]*(np.tan(parsed["R"]*np.atan(np.tan(math.radians(parsed["phi"]))/parsed["gamma_phi"])))
+        
+        return H_Rd
         
         
 

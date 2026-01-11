@@ -4,7 +4,7 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import numpy as np
 import math
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.patches import Rectangle, Circle
 import tkinter.messagebox as messagebox
 from tooltip import ToolTip
@@ -48,7 +48,7 @@ class Styrkeparametre(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
         
-        labels = ["φ [°]:", "cu [kPa]:", "c' [kPa]:", "Ruhedsgrad:"]
+        labels = ["φ [°]:", "c_u [kPa]:", "c' [kPa]:", "Ruhedsgrad:"]
         
         self.entries_2 = {}
         for i, label_text in enumerate(labels):
@@ -63,9 +63,9 @@ class Egenvaegt(ctk.CTkFrame):
         super().__init__(master, fg_color="transparent")
         
         label = ctk.CTkLabel(self, text="Fundament, γ_g [kN/m3]:", font=FONT_TEXT, anchor="w", width=140)
-        label.grid(row=0, column=0, padx=PAD_X, pady=PAD_Y, sticky="w")
+        label.grid(row=0, column=0, padx=PAD_X, pady=(PAD_Y, 0), sticky="w")
         entry = ctk.CTkEntry(self, placeholder_text="0", width=120)
-        entry.grid(row=0, column=1, padx=PAD_X, pady=PAD_Y)
+        entry.grid(row=0, column=1, padx=PAD_X, pady=(PAD_Y, 0))
         self.entry = entry  # Store reference to entry for later access
 
 class Rumvaegt_jord(ctk.CTkFrame):
@@ -141,12 +141,43 @@ class Resultater(ctk.CTkFrame):
         self.canvas_top = None
         
 class Geometry_res(ctk.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master, fg_color="transparent")
+    def __init__(self, master, funderingsform):
+        super().__init__(master, fg_color="transparent")     
         
-        self.beskrivelse = ctk.CTkLabel(self, text="Kontrol af excentricitet: —", font=FONT_TEXT)
-        self.beskrivelse.grid(row=2, column=0, columnspan=2, padx=PAD_X, pady=PAD_Y)
-        ToolTip(self.beskrivelse, f"Stærkt excentrisk belastning: e>0.3B")
+        f = funderingsform.get()
+        if f == "Stribe":
+            self.label20 = ctk.CTkLabel(self, text="Effektivt areal:", font=FONT_TEXT)
+            self.label20.grid(row=2, column=0, padx=PAD_X, pady=1, sticky="w")
+            self.label30 = None
+            self.label21 = ctk.CTkLabel(self, text="", font=FONT_TEXT)
+            self.label21.grid(row=2, column=1, padx=PAD_X, pady=1, sticky="w")
+            self.label31 = None
+        else:
+            self.label20 = ctk.CTkLabel(self, text="Effektiv længde:", font=FONT_TEXT)
+            self.label20.grid(row=2, column=0, padx=PAD_X, pady=1, sticky="w")
+            self.label30 = ctk.CTkLabel(self, text="Effektivt areal:", font=FONT_TEXT)
+            self.label30.grid(row=3, column=0, padx=PAD_X, pady=1, sticky="w")
+            self.label21 = ctk.CTkLabel(self, text="", font=FONT_TEXT)
+            self.label21.grid(row=2, column=1, padx=PAD_X, pady=1, sticky="w")
+            self.label31 = ctk.CTkLabel(self, text="", font=FONT_TEXT)
+            self.label31.grid(row=3, column=1, padx=PAD_X, pady=1, sticky="w")
+            
+        self.label00 = ctk.CTkLabel(self, text="Excentricitet:", font=FONT_TEXT)
+        self.label00.grid(row=0, column=0, padx=PAD_X, pady=1, sticky="w")
+        self.label10 = ctk.CTkLabel(self, text="Effektiv bredde:", font=FONT_TEXT)
+        self.label10.grid(row=1, column=0, padx=PAD_X, pady=1, sticky="w")
+        
+
+        self.label01 = ctk.CTkLabel(self, text="", font=FONT_TEXT)
+        self.label01.grid(row=0, column=1, padx=PAD_X, pady=1, sticky="w")
+        self.label11 = ctk.CTkLabel(self, text="", font=FONT_TEXT)
+        self.label11.grid(row=1, column=1, padx=PAD_X, pady=1, sticky="w")
+        
+        
+        self.grid_columnconfigure(0, minsize=250, weight=0)
+        self.grid_columnconfigure(1, minsize=150, weight=0)
+        
+        ToolTip(self.label01, f"Stærkt excentrisk belastning: e>0.3B")
         
 class Styrker_res(ctk.CTkFrame):
     def __init__(self, master):
@@ -298,10 +329,11 @@ class App(ctk.CTk):
         # Bund bjælke
         bottombar = ctk.CTkFrame(self, fg_color="#e5e5e5", height=30, corner_radius=0)
         bottombar.grid(row=2, column=0, columnspan=2, sticky="ew")
-        footer = ctk.CTkLabel(bottombar, text="Udviklet af Niels Graversgaard Pedersen, kontakt vedr. forbedringer:", font=("Helvetica", 10))
+        footer = ctk.CTkLabel(bottombar, text="Udviklet af Niels Graversgaard Pedersen, kontakt:", font=("Helvetica", 10))
         footer.pack(side="left", padx=(20,0))
         # LinkedIn knap (designet til at ligne et link)
         linkedin_url = "https://www.linkedin.com/in/niels-g-pedersen/" 
+        github_url = "https://github.com/NielsGP/Bearing-Capacity-Calculator"
         
         btn_linkedin = ctk.CTkButton(
             bottombar,
@@ -316,6 +348,21 @@ class App(ctk.CTk):
             command=lambda: webbrowser.open_new_tab(linkedin_url)
         )
         btn_linkedin.pack(side="left", padx=5)
+        
+        # GitHub knap (Dokumentation)
+        btn_github = ctk.CTkButton(
+            bottombar,
+            text="| GitHub Dokumentation",
+            font=("Helvetica", 10, "bold"),
+            fg_color="transparent",
+            text_color="#24292e",       # Klassisk GitHub mørkegrå/sort
+            hover_color="#d1d1d1",
+            width=0,
+            height=20,
+            cursor="hand2",
+            command=lambda: webbrowser.open_new_tab(github_url)
+        )
+        btn_github.pack(side="right", padx=20)
         
         self.create_left_sections()
         self.create_right_section()
@@ -353,7 +400,7 @@ class App(ctk.CTk):
         self.egenvaegt_container = None
         self.egenvaegt_frame = None
         self.rumvaegt_jord_frame = Rumvaegt_jord(egen_card)
-        self.rumvaegt_jord_frame.pack(pady=PAD_Y)
+        self.rumvaegt_jord_frame.pack(pady=(0, 5))
 
         last_card = ctk.CTkFrame(self.left_frame, fg_color="#f2f2f2", corner_radius=10)
         last_card.pack(fill="x", pady=8, padx=5)
@@ -386,16 +433,16 @@ class App(ctk.CTk):
 
     def create_right_section(self):
         result_header = ctk.CTkLabel(self.right_frame, text="Resultater", font=("Helvetica", 18, "bold"))
-        result_header.pack(pady=(10, 5))
+        result_header.pack(pady=(0, 5))
         figur_card = ctk.CTkFrame(self.right_frame, fg_color="#f2f2f2", corner_radius=10)
         figur_card.pack(fill="x", pady=8, padx=5)
         self.resultater = Resultater(figur_card)
         self.resultater.pack(expand=True, fill="both", padx=10, pady=5)
         
-        excen_card = ctk.CTkFrame(self.right_frame, fg_color="#f2f2f2", corner_radius=10)
-        excen_card.pack(fill="x", pady=8, padx=5)
-        ctk.CTkLabel(excen_card, text="Effektiv geomtri", font=FONT_TITLE).pack(anchor="w", padx=10, pady=(5,2))
-        self.geometry_res = Geometry_res(excen_card)
+        self.excen_card = ctk.CTkFrame(self.right_frame, fg_color="#f2f2f2", corner_radius=10)
+        self.excen_card.pack(fill="x", pady=8, padx=5)
+        ctk.CTkLabel(self.excen_card, text="Effektiv geomtri", font=FONT_TITLE).pack(anchor="w", padx=10, pady=(5,2))
+        self.geometry_res = Geometry_res(self.excen_card, self.funderingsform)
         self.geometry_res.pack(expand=True, fill="both", padx=10, pady=5)
         
         styrker_res_card = ctk.CTkFrame(self.right_frame, fg_color="#f2f2f2", corner_radius=10)
@@ -470,7 +517,7 @@ class App(ctk.CTk):
         str_entries = self.styrke_frame.entries_2
         try:
             phi = float(str_entries["φ [°]:"].get())
-            cu = float(str_entries["cu [kPa]:"].get())
+            cu = float(str_entries["c_u [kPa]:"].get())
             c = float(str_entries["c' [kPa]:"].get())
             R = float(str_entries["Ruhedsgrad:"].get())
         except Exception:
@@ -623,7 +670,12 @@ class App(ctk.CTk):
         
         # Create new Geometri inside the same container
         self.geometry_frame = Geometri(self.geometry_container, self.funderingsform)
-        self.geometry_frame.pack()
+        self.geometry_frame.pack(pady=PAD_Y)
+        
+        # Opdater resultatsektionen for effektiv geometri
+        self.geometry_res.destroy()
+        self.geometry_res = Geometry_res(self.excen_card, self.funderingsform)
+        self.geometry_res.pack(expand=True, fill="both", padx=10, pady=5)
         
         self.update_laster(self.laster_med_var.get())
         
@@ -657,8 +709,8 @@ class App(ctk.CTk):
             self.laster_container = ctk.CTkFrame(self.laster_combobox.master, fg_color="transparent")
             self.laster_container.pack(after=self.laster_combobox)
             self.laster_frame = Laster(self.laster_container, self.funderingsform)
-            self.laster_frame.pack(pady=5)    
-       
+            self.laster_frame.pack(pady=5)
+ 
     def update_CC(self, choice):
         # Destroy old frame and container if they exist
         if self.CC_frame:
@@ -699,29 +751,30 @@ class App(ctk.CTk):
         f = self.funderingsform.get()
         laster = self.laster_med_var.get()
         
-        # Geometri
-        try:
-            B_ef, L_ef, A_ef, e_B, e_L, res = calc.excentricitet(self, parsed["V"], parsed["MB"], parsed["ML"], parsed["width"], parsed["length"])
-            if f == "Stribe":
-                exc_tekst = f"Kontrol af excentricitet: {res} ⓘ (e = {e_B:.2f}) m\nEffektiv bredde: B' = {B_ef:.2f} m\nEffektivt areal: A' = {A_ef:.2f} m^2"
-            elif f == "Cirkulært":
-                exc_tekst = f"Kontrol af excentricitet: {res} ⓘ (e = {e_B:.2f}) m\nEffektiv bredde: B' = {B_ef:.2f} m\nEffektiv længde: L' = {L_ef:.2f} m\nEffektivt areal: A' = {A_ef:.2f} m^2"
-            else:
-                exc_tekst = f"Kontrol af excentricitet: {res} ⓘ (e = {e_B:.2f} m, eL = {e_L:.2f} m)\nEffektiv bredde: B' = {B_ef:.2f} m\nEffektiv længde: L' = {L_ef:.2f} m\nEffektivt areal: A' = {A_ef:.2f} m^2" 
-                 
-            self.geometry_res.beskrivelse.configure(
-                text=exc_tekst,
-                justify="left"
-            )
-        except Exception:
-            self.geometry_res.beskrivelse.configure(text= f"FEJL")
+        ## Geometri ---------------------------------
+        B_ef, L_ef, A_ef, e_B, e_L, res = calc.excentricitet(self, parsed["V"], parsed["MB"], parsed["ML"], parsed["width"], parsed["length"])
+        if f == "Stribe":
+            self.geometry_res.label01.configure(text=f"{res} ⓘ (e = {e_B:.2f}) m)")
+            self.geometry_res.label11.configure(text=f"B' = {B_ef:.2f} m")
+            self.geometry_res.label21.configure(text=f"A' = {A_ef:.2f} m^2/m")
+        elif f == "Cirkulært":
+            self.geometry_res.label01.configure(text=f"{res} ⓘ (e = {e_B:.2f}) m)")
+            self.geometry_res.label11.configure(text=f"B' = {B_ef:.2f} m")
+            self.geometry_res.label21.configure(text=f"L' = {L_ef:.2f} m")
+            self.geometry_res.label31.configure(text=f"A' = {A_ef:.2f} m^2")
+        else:
+            self.geometry_res.label01.configure(text=f"{res} ⓘ (e_B = {e_B:.2f} m, e_L = {e_L:.2f} m)")
+            self.geometry_res.label11.configure(text=f"B' = {B_ef:.2f} m")
+            self.geometry_res.label21.configure(text=f"L' = {L_ef:.2f} m")
+            self.geometry_res.label31.configure(text=f"A' = {A_ef:.2f} m^2")
         
-        # Styrker
+        ## Regningsmæssige styrker ---------------------------------
         self.styrker_res.label01.configure(text=f"{math.degrees(np.atan(np.tan(math.radians(parsed["phi"]))/parsed["gamma_phi"])):.2f}°")
         self.styrker_res.label11.configure(text=f"{parsed["cu"]/parsed["gamma_cu"]:.2f} kPa")
         self.styrker_res.label21.configure(text=f"{parsed["c"]/parsed["gamma_c"]:.2f} kPa")
 
-        # Drænet Bæreevne
+        ## Drænet Bæreevne ---------------------------------
+        # Bæreevnefaktorer
         Ng, Nc, Nq = calc.N_faktor(parsed)
         self.drained_res.label01.configure(text=f"N_γ = {Ng:.2f}")
         self.drained_res.label02.configure(text=f"N_c = {Nc:.2f}")
@@ -735,8 +788,9 @@ class App(ctk.CTk):
         self.drained_res.label22.configure(text=f"i_c = {ic:.2f}")
         self.drained_res.label23.configure(text=f"i_q = {iq:.2f}")
         
+        # drænet lodret bæreevne
         R_Rd, R_Rd_A = calc.drained_bearing_cap(parsed, Ng, sg, ig, Nq, sq, iq, Nc, sc, ic)
-        lodret_tekst_1 = f"R_Rd' = {R_Rd:.1f} kN/m" if f == "Stribe" else f"R_Rd' = {R_Rd:.1f} kN"
+        lodret_tekst_1 = f"R_Rd = {R_Rd:.1f} kN/m" if f == "Stribe" else f"R_Rd = {R_Rd:.1f} kN"
         self.drained_res.label31.configure(text=f"R_Rd/A' = {R_Rd_A:.1f} kN/m2")
         self.drained_res.label32.configure(text=lodret_tekst_1)
         if parsed["V"] < R_Rd:
@@ -745,9 +799,10 @@ class App(ctk.CTk):
         else:
             kontrol_R_drained = f"< V_Ed = {parsed["V"]:.1f} kN/m   EJ OK!" if f == "Stribe" else f"< V_Ed = {parsed["V"]:.1f} kN   EJ OK!"
             self.drained_res.label33.configure(text=f"{kontrol_R_drained}")
+            
         # drænet vandret bæreevne
-        vandret_bæreevne_d = parsed["V_ef"]/(np.tan(parsed["R"]*np.atan(np.tan(math.radians(parsed["phi"]))/parsed["gamma_phi"])))
-        vandret_tekst_d = f"V'_d/tan\u03B4_d = {vandret_bæreevne_d:.1f} kN/m" if f == "Stribe" else f"V'_d/tan\u03B4_d = {vandret_bæreevne_d:.1f} kN"
+        vandret_bæreevne_d = calc.drained_bearing_cap_hor(parsed)
+        vandret_tekst_d = f"V'_d tan(\u03B4_d) = {vandret_bæreevne_d:.1f} kN/m" if f == "Stribe" else f"V'_d*tan(\u03B4_d) = {vandret_bæreevne_d:.1f} kN"
         self.drained_res.label41.configure(text=vandret_tekst_d)
         if parsed["H"] <= vandret_bæreevne_d:
             kontrol_H_drained = f"≥ H_Ed = {parsed["H"]:.1f} kN/m   OK!" if f == "Stribe" else f"≥ H_Ed = {parsed["H"]:.1f} kN   OK!"
@@ -759,18 +814,18 @@ class App(ctk.CTk):
         # Farveskift hvis enten vandret eller lodret ikke er OK
         if ("EJ OK!" in kontrol_R_drained or "EJ OK!" in kontrol_H_drained):
             self.drained_card.configure(fg_color="#fd9620")
-        # Farveskift til grøn, hvis begge er ok
         else:
             self.drained_card.configure(fg_color="#b4f7b4")
         
             
-        # Udrænet Bæreevne  
+        ## Udrænet Bæreevne  ---------------------------------
+        # Bæreevnefaktorer
         Nc0, sc0, ic0 = calc.udr_faktorer(f, parsed["B_ef"], parsed["L_ef"], parsed["H"], parsed["A_ef"], parsed["cu"]) 
-        
         self.undrained_res.label01.configure(text=f"N_c0 = {Nc0:.2f}")
         self.undrained_res.label11.configure(text=f"s_c0 = {sc0:.2f}")
         self.undrained_res.label21.configure(text=f"i_c0 = {ic0:.2f}")
         
+        # Kontrol af behov for eftervisning af udrænet bæreevne
         if parsed["cu"] == 0 and parsed["c"] == 0:
             self.undrained_header.configure(text="Bæreevne i udrænet tilstand (Angivet jord er friktionsjord. Se bort fra udrænet bæreevne)")
         elif parsed["cu"] == 0:
@@ -778,8 +833,9 @@ class App(ctk.CTk):
         else:
             self.undrained_header.configure(text="Bæreevne i udrænet tilstand")
         
+        # udrænet lodret bæreevne
         R_Rd, R_Rd_A = calc.undrained_bearing_cap(parsed, Nc0, sc0, ic0)
-        lodret_tekst_2 = f"R_Rd' = {R_Rd:.1f} kN/m" if f == "Stribe" else f"R_Rd' = {R_Rd:.1f}"
+        lodret_tekst_2 = f"R_Rd = {R_Rd:.1f} kN/m" if f == "Stribe" else f"R_Rd = {R_Rd:.1f}"
         self.undrained_res.label31.configure(text=f"R_Rd/A' = {R_Rd_A:.1f} kN/m2")
         self.undrained_res.label32.configure(text=lodret_tekst_2)
         if parsed["V"] <= R_Rd:
@@ -789,11 +845,14 @@ class App(ctk.CTk):
             kontrol_R_undrained = f"< V_Ed = {parsed["V"]} kN/m   EJ OK!" if f == "Stribe" else f"< V_Ed = {parsed["V"]} kN   EJ OK!"
             self.undrained_res.label33.configure(text=f"{kontrol_R_undrained}")
         
-        vandret_tekst_1 = f"min(c_ud/A' = {parsed["cu"]/parsed["gamma_cu"]*parsed["A_ef"]:.1f} kN/m ;" if f == "Stribe" else f"min(c_ud/A' = {parsed["cu"]/parsed["gamma_cu"]*parsed["A_ef"]:.2f} kN ;"
-        vandret_tekst_2 = f"0.4V = {0.4*parsed["V"]:.1f} kN/m)" if f == "Stribe" else f"0.4V = {0.4*parsed["V"]:.1f} kN)"
+        # udrænet vandret bæreevne
+        undrained_hor_cap_1 = (parsed["cu"]/parsed["gamma_cu"])*parsed["A_ef"]
+        undrained_hor_cap_2 = 0.4*parsed["V"]
+        vandret_tekst_1 = f"min(A' c_ud = {undrained_hor_cap_1:.1f} kN/m ;" if f == "Stribe" else f"min(A' c_ud = {undrained_hor_cap_1:.1f} kN ;"
+        vandret_tekst_2 = f"0.4V = {undrained_hor_cap_2:.1f} kN/m)" if f == "Stribe" else f"0.4V = {undrained_hor_cap_2:.1f} kN)"
         self.undrained_res.label41.configure(text=vandret_tekst_1)
         self.undrained_res.label42.configure(text=vandret_tekst_2)
-        if parsed["H"] <= min(parsed["cu"]/parsed["gamma_cu"]*parsed["A_ef"],0.4*parsed["V"]):
+        if parsed["H"] <= min(undrained_hor_cap_1, undrained_hor_cap_2):
             kontrol_H_undrained = f"≥ H_Ed = {parsed["H"]} kN/m   OK!" if f == "Stribe" else f"≥ H_Ed = {parsed["V"]} kN   OK!"
             self.undrained_res.label43.configure(text=f"{kontrol_H_undrained}")
         else:
@@ -803,11 +862,9 @@ class App(ctk.CTk):
         # Farveskift hvis enten vandret eller lodret ikke er OK
         if ("EJ OK!" in kontrol_R_undrained or "EJ OK!" in kontrol_H_undrained):
             self.undrained_card.configure(fg_color="#fd9620")
-        # Farveskift til grøn, hvis begge er ok
         else:
             self.undrained_card.configure(fg_color="#b4f7b4")
 
-    
     def display_sketch(self, parsed):
         f = parsed["funderingsform"]
         width = parsed["width"]
@@ -881,7 +938,7 @@ class App(ctk.CTk):
         ax_left.text(-width*0.7, -depth, f"FUK = -{depth:.2f} m", ha="right", va="bottom", fontsize=10)
         
         # vis rumvægt
-        ax_left.text((x_lim+width/2)/2, -depth/2, f"γ/γ_m =\n {parsed["gamma"]:.2f}/{parsed["gamma_m"]:.2f} kN/m3", va="center", ha="center", fontsize=10, color="#b3b1b1")
+        ax_left.text((x_lim+width/2)/2, -depth/2, f"γ_d/γ_m =\n {parsed["gamma"]:.2f}/{parsed["gamma_m"]:.2f} kN/m3", va="center", ha="center", fontsize=10, color="#b3b1b1")
         if parsed["gamma_g"] != 0:
             ax_left.text(0, -depth/2, f"γ_g =\n {parsed["gamma_g"]:.2f} kN/m^3", va="center", ha="center", fontsize=10, color="#b3b1b1")
 
@@ -1143,17 +1200,50 @@ class App(ctk.CTk):
         ax_right.axis("off")
 
         # Place left (cross-section) and right (top-view) canvases side-by-side
+        
+        if hasattr(self.resultater, "toolbar_frame_left") and self.resultater.toolbar_frame_left:
+            self.resultater.toolbar_frame_left.destroy()
+        
         self.plot_titel_left = ctk.CTkLabel(self.resultater, text="Snittegning:", font=FONT_TITLE)
         self.plot_titel_left.grid(column=0, row=0, padx=10, pady=(5,2), sticky="w")
         self.resultater.canvas = FigureCanvasTkAgg(fig_left, master=self.resultater.canvas_frame_left)
         self.resultater.canvas.draw()
         self.resultater.canvas.get_tk_widget().pack(expand=True, fill="both", pady=5, padx=5, anchor="center")
+        self.resultater.toolbar_frame_left = ctk.CTkFrame(self.resultater.canvas_frame_left, fg_color="transparent")
+        self.resultater.toolbar_frame_left.pack(side="bottom", fill="x", padx=5, pady=5)
+
+        self.resultater.toolbar = NavigationToolbar2Tk(self.resultater.canvas, self.resultater.toolbar_frame_left)
+        self.resultater.toolbar.config(background="white")
+        self.resultater.toolbar._message_label.config(background="white")
+        for i, child in enumerate(self.resultater.toolbar.winfo_children()):
+            if i in [1, 2, 6]:  # Index 1 er 'Back', Index 2 er 'Forward'
+                child.pack_forget()  # Skjuler knappen fra visningen
+            else:
+                # Gør de resterende knapper (Home, Pan, Zoom, Save) hvide
+                child.config(background="white")
+        self.resultater.toolbar.update()
+        
+        if hasattr(self.resultater, "toolbar_frame_right") and self.resultater.toolbar_frame_right:
+            self.resultater.toolbar_frame_right.destroy()
 
         self.plot_titel_right = ctk.CTkLabel(self.resultater, text="Plantegning:", font=FONT_TITLE)
         self.plot_titel_right.grid(column=1, row=0, padx=10, pady=(5,2), sticky="w")
         self.resultater.canvas_top = FigureCanvasTkAgg(fig_top, master=self.resultater.canvas_frame_right)
         self.resultater.canvas_top.draw()
         self.resultater.canvas_top.get_tk_widget().pack(expand=True, fill="both", pady=5, padx=5, anchor="center")
+        self.resultater.toolbar_frame_right = ctk.CTkFrame(self.resultater.canvas_frame_right, fg_color="transparent")
+        self.resultater.toolbar_frame_right.pack(side="bottom", fill="x", padx=5, pady=5)
+
+        self.resultater.toolbar = NavigationToolbar2Tk(self.resultater.canvas_top, self.resultater.toolbar_frame_right)
+        self.resultater.toolbar.config(background="white")
+        self.resultater.toolbar._message_label.config(background="white")
+        for i, child in enumerate(self.resultater.toolbar.winfo_children()):
+            if i in [1, 2, 6]:  # Index 1 er 'Back', Index 2 er 'Forward'
+                child.pack_forget()  # Skjuler knappen fra visningen
+            else:
+                # Gør de resterende knapper (Home, Pan, Zoom, Save) hvide
+                child.config(background="white")
+        self.resultater.toolbar.update()
 
         plt.close(fig_left)
         plt.close(fig_top)

@@ -1,15 +1,18 @@
 TO DO:
+        Tilføjelse af beregning ved stærkt excentrisk belastning
+        Save projekt
+        Eksport to pdf
+        Skrånende terræn
+        Mulighed for fundamenter med bred fod.
+        Ret division/0 error ved vandret bæreevne drænet tilstand
+        
+
 DONE    Lodret og vandret bærevne udrænet     
 DONE    Lodret og vandret bæreevne drænet     
 DONE    Tilføj rumvægt til snittegning    
 DONE    Grafisk repræsentation af excentricitet på rundt fundament  
 DONE    Tilføj angrebspunkt for excentrisk last på cirkel   
 DONE    Tilføj ruhedsgrad under styrkeparametre
-
-        Tilføjelse af beregning ved stærkt excentrisk belastning
-        Save projekt
-        Eksport to pdf
-        Zoom på plots
-        Skrånende terræn
-        Stort mellemrum ml. Fundament egenlast og jordens
-        Mulighed for fundamenter med bred fod.
+DONE    Stort mellemrum ml. Fundament egenlast og jordens skal fjernes
+DONE    Zoom på plots
+DONE    Ret margen i bund af geomtri input
